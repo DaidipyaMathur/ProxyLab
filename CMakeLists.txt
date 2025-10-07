@@ -16,7 +16,7 @@ find_package(Boost REQUIRED COMPONENTS system)
 
 # Find the OpenSSL library, which you will need for handling HTTPS.
 # It's good to add this now.
-find_package(OpenSSL REQUIRED)
+find_package(OpenSSL REQUIRED COMPONENTS SSL Crypto)
 
 
 # --------------------------------------------------------------------
@@ -26,12 +26,15 @@ find_package(OpenSSL REQUIRED)
 # Tell CMake to create an executable named "proxylab".
 # It will be built from the source file at "src/main.cpp".
 # (You should create a folder named "src" and put your main.cpp inside it).
-add_executable(proxylab src/main.cpp)
+add_executable(proxylab src/main.cpp src/CertificateManager.cpp)
 
 # Link your "proxylab" executable against the libraries it needs.
 # This is the crucial step that connects your code to Boost and OpenSSL.
+# Add the OpenSSL include directory to your project
+target_include_directories(proxylab PRIVATE ${OPENSSL_INCLUDE_DIR})
+
+# Link against the libraries using the variables set by the older find module
 target_link_libraries(proxylab PRIVATE
     Boost::system
-    OpenSSL::ssl
-    OpenSSL::crypto
+    ${OPENSSL_LIBRARIES}
 )
