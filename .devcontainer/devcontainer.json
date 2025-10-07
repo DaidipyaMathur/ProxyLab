@@ -1,23 +1,11 @@
 {
   "name": "C++ for ProxyLab",
-  // Use a pre-built image with C++ tools
   "image": "mcr.microsoft.com/devcontainers/cpp:1-ubuntu-22.04",
 
-  // --- This is the important part for installing libraries ---
-  "features": {
-    "ghcr.io/devcontainers/features/cpp-home-vcpkg:1": {
-        "packages": "boost-asio"
-    }
-  },
+  // This command runs once when the container is created.
+  // It updates the package list and installs our dependencies directly.
+  "onCreateCommand": "sudo apt-get update && sudo apt-get install -y build-essential cmake libboost-all-dev libssl-dev",
 
-  // A command to run after the container is created.
-  // This configures CMake to use the vcpkg toolchain.
-  "postCreateCommand": "cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg-cmake/vcpkg.cmake",
-
-  // Forward the port your proxy will run on
-  "forwardPorts": [8080],
-
-  // VS Code extensions to install automatically
   "customizations": {
     "vscode": {
       "extensions": [
@@ -25,5 +13,7 @@
         "ms-vscode.cmake-tools"
       ]
     }
-  }
+  },
+
+  "forwardPorts": [8080]
 }
