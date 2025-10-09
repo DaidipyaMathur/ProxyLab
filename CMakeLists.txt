@@ -18,6 +18,8 @@ find_package(Boost REQUIRED COMPONENTS system)
 # It's good to add this now.
 find_package(OpenSSL REQUIRED COMPONENTS SSL Crypto)
 
+find_package(ZLIB REQUIRED)
+
 
 # --------------------------------------------------------------------
 # DEFINE AND LINK YOUR PROGRAM
@@ -26,7 +28,11 @@ find_package(OpenSSL REQUIRED COMPONENTS SSL Crypto)
 # Tell CMake to create an executable named "proxylab".
 # It will be built from the source file at "src/main.cpp".
 # (You should create a folder named "src" and put your main.cpp inside it).
-add_executable(proxylab src/main.cpp src/CertificateManager.cpp)
+add_executable(proxylab 
+src/main.cpp 
+src/CertificateManager.cpp 
+src/EncodingUtils.cpp
+)
 
 # Link your "proxylab" executable against the libraries it needs.
 # This is the crucial step that connects your code to Boost and OpenSSL.
@@ -37,4 +43,5 @@ target_include_directories(proxylab PRIVATE ${OPENSSL_INCLUDE_DIR})
 target_link_libraries(proxylab PRIVATE
     Boost::system
     ${OPENSSL_LIBRARIES}
+    ZLIB::ZLIB
 )
