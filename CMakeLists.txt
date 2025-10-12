@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(ProxyLab CXX)
 
-# Set the C++ standard to C++17 (a good modern standard).
+# Set the C++ standard to C++17.
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -10,38 +10,39 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # FIND DEPENDENCIES
 # --------------------------------------------------------------------
 
-# Find the Boost library. We need the "system" component for Asio.
-# The "REQUIRED" keyword will stop the process if Boost isn't found.
 find_package(Boost REQUIRED COMPONENTS system)
-
-# Find the OpenSSL library, which you will need for handling HTTPS.
-# It's good to add this now.
 find_package(OpenSSL REQUIRED COMPONENTS SSL Crypto)
-
 find_package(ZLIB REQUIRED)
+find_package(PkgConfig REQUIRED)
 
+# --- THE KEY FIX ---
+# Explicitly tell pkg-config where to find the sqlcipher.pc file.
+# This avoids the need for the 'export' command in the terminal.
+set(ENV{PKG_CONFIG_PATH} "/usr/lib/x86_64-linux-gnu/pkgconfig")
+pkg_search_module(SQLCIPHER REQUIRED sqlcipher)
+# --- END FIX ---
 
 # --------------------------------------------------------------------
 # DEFINE AND LINK YOUR PROGRAM
 # --------------------------------------------------------------------
 
-# Tell CMake to create an executable named "proxylab".
-# It will be built from the source file at "src/main.cpp".
-# (You should create a folder named "src" and put your main.cpp inside it).
 add_executable(proxylab 
-src/main.cpp 
-src/CertificateManager.cpp 
-src/EncodingUtils.cpp
+    src/main.cpp 
+    src/CertificateManager.cpp 
+    src/EncodingUtils.cpp
+    src/DatabaseManager.cpp
 )
 
-# Link your "proxylab" executable against the libraries it needs.
-# This is the crucial step that connects your code to Boost and OpenSSL.
-# Add the OpenSSL include directory to your project
-target_include_directories(proxylab PRIVATE ${OPENSSL_INCLUDE_DIR})
+# Use target_include_directories for includes from found packages.
+target_include_directories(proxylab PRIVATE 
+    ${SQLCIPHER_INCLUDE_DIRS}
+)
 
-# Link against the libraries using the variables set by the older find module
+# Link against the modern imported targets and found libraries.
 target_link_libraries(proxylab PRIVATE
     Boost::system
-    ${OPENSSL_LIBRARIES}
+    OpenSSL::SSL
+    OpenSSL::Crypto
     ZLIB::ZLIB
+    ${SQLCIPHER_LIBRARIES} # Use the variable from pkg_search_module
 )
