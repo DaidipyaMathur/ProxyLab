@@ -13,4 +13,9 @@ make
 ./proxylab
 
 gzip:
+
 sudo apt-get install -y zlib1g-dev
+
+SQLCipher:
+
+sudo apt-get install -y libsqlcipher-dev
