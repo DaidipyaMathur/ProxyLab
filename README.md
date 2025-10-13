@@ -34,6 +34,8 @@ sqlcipher history.db
 
 PRAGMA key ='proxylab';
 
+ADD ROOTCA FILES TO BUILD AFTER MAKING BUILD
+
 NOW USE LIKE NORMAL SQL
 
 
