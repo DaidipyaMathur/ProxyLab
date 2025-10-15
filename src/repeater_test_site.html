@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repeater Testing Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="bg-blue-600 text-white p-6 rounded-lg shadow-md mb-8">
+            <h1 class="text-3xl font-bold">Proxylab Repeater Testing Dashboard</h1>
+            <p class="mt-2">Use these presets to generate requests and test your C++ repeater.</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Test Cases -->
+            <div class="md:col-span-1 bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2">Test Cases</h2>
+                <div class="space-y-2">
+                    <button onclick="setPreset('get')" class="w-full text-left bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300">GET Request</button>
+                    <button onclick="setPreset('getParams')" class="w-full text-left bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300">GET with Params</button>
+                    <button onclick="setPreset('postForm')" class="w-full text-left bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300">POST Form Data</button>
+                    <button onclick="setPreset('postJson')" class="w-full text-left bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-300">POST JSON Data</button>
+                    <button onclick="setPreset('setCookie')" class="w-full text-left bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded transition duration-300">Set a Cookie</button>
+                    <button onclick="setPreset('redirect')" class="w-full text-left bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition duration-300">Test a Redirect</button>
+                     <button onclick="setPreset('customHeaders')" class="w-full text-left bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition duration-300">Custom Headers</button>
+                </div>
+            </div>
+
+            <!-- Request Details -->
+            <div class="md:col-span-2 bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4 border-b pb-2">Request Details</h2>
+                <div id="test-description" class="mb-4 p-4 bg-gray-50 rounded-md border border-gray-200">
+                    Select a test case to see the details.
+                </div>
+                <div>
+                    <div class="mb-4">
+                        <label for="url" class="block text-sm font-medium text-gray-700">URL</label>
+                        <input type="text" id="url" readonly class="mt-1 block w-full bg-gray-100 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    </div>
+                     <div class="mb-4">
+                        <label for="method" class="block text-sm font-medium text-gray-700">Method</label>
+                        <input type="text" id="method" readonly class="mt-1 block w-full bg-gray-100 rounded-md border-gray-300 shadow-sm">
+                    </div>
+                    <div class="mb-4">
+                        <label for="headers" class="block text-sm font-medium text-gray-700">Headers</label>
+                        <textarea id="headers" rows="4" readonly class="mt-1 block w-full bg-gray-100 rounded-md border-gray-300 shadow-sm font-mono text-sm"></textarea>
+                    </div>
+                    <div>
+                        <label for="body" class="block text-sm font-medium text-gray-700">Body</label>
+                        <textarea id="body" rows="6" readonly class="mt-1 block w-full bg-gray-100 rounded-md border-gray-300 shadow-sm font-mono text-sm"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const presets = {
+            get: {
+                description: "A simple GET request. Check your repeater's history to see the full response from the server.",
+                url: "https://httpbin.org/get",
+                method: "GET",
+                headers: `{\n  "Accept": "*/*"\n}`,
+                body: ""
+            },
+            getParams: {
+                description: "GET request with query parameters. Use the 'Request Inspector' in your repeater to add these parameters easily. Check the 'args' section in the response.",
+                url: "https://httpbin.org/get?name=proxylab&version=1.0",
+                method: "GET",
+                headers: `{\n  "Accept": "*/*"\n}`,
+                body: ""
+            },
+            postForm: {
+                description: "POST request with 'application/x-www-form-urlencoded' data. Use the 'Request Inspector' -> 'Edit Body Parameters' feature. Check the 'form' section in the response.",
+                url: "https://httpbin.org/post",
+                method: "POST",
+                headers: `{\n  "Content-Type": "application/x-www-form-urlencoded"\n}`,
+                body: "key=value&framework=proxylab"
+            },
+            postJson: {
+                description: "POST request with a JSON body. Set the 'Content-Type' header and paste the content into the raw body editor. Check the 'json' section in the response.",
+                url: "https://httpbin.org/post",
+                method: "POST",
+                headers: `{\n  "Content-Type": "application/json"\n}`,
+                body: `{\n  "project": "Proxylab",\n  "status": "testing",\n  "features": ["repeater", "inspector"]\n}`
+            },
+            setCookie: {
+                description: "This endpoint sets a cookie. Check your repeater's history. The 'Set-Cookie' response header should be parsed and added to the 'Cookie' header for the next request automatically.",
+                url: "https://httpbin.org/cookies/set?course=networking&year=2025",
+                method: "GET",
+                headers: `{\n  "Accept": "*/*"\n}`,
+                body: ""
+            },
+            redirect: {
+                description: "This endpoint issues a 302 redirect. Your repeater should show you the 302 response with a 'Location' header pointing to '/get'. It should not follow it automatically.",
+                url: "https://httpbin.org/redirect/1",
+                method: "GET",
+                headers: `{\n  "Accept": "*/*"\n}`,
+                body: ""
+            },
+             customHeaders: {
+                description: "Send a request with custom headers. Use the 'Request Inspector' to add a header like 'X-Test-Header'. Check the 'headers' section in the response to confirm it was received.",
+                url: "https://httpbin.org/headers",
+                method: "GET",
+                headers: `{\n  "Accept": "*/*",\n  "X-Test-Header": "Proxylab-Works"\n}`,
+                body: ""
+            }
+        };
+
+        function setPreset(name) {
+            const preset = presets[name];
+            document.getElementById('description').innerHTML = `<p class="font-semibold">Test Objective:</p><p class="text-sm">${preset.description}</p>`;
+            document.getElementById('url').value = preset.url;
+            document.getElementById('method').value = preset.method;
+            document.getElementById('headers').value = preset.headers;
+            document.getElementById('body').value = preset.body;
+        }
+
+        // Set a default on load
+        window.onload = () => setPreset('get');
+    </script>
+
+</body>
+</html>
+
